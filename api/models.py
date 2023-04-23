@@ -1,46 +1,33 @@
 from djongo import models
+import uuid 
 
+class Doctor(models.Model):
+    _id = models.UUIDField(primary_key = True, default = uuid.uuid4, editable = False)
+    user_id = models.CharField(max_length=15, unique=True)
+    name = models.CharField(max_length=100)
+    address = models.CharField(max_length=100)
+    phone_number = models.CharField(max_length=10)    
+    email= models.EmailField(max_length=50)
+    password = models.CharField(max_length=50)
 
-class Users(models.Model):
-    TYPE_CHOICES = [    ('d', 'Doctor'),    ('p', 'Paciente'),]
-    _id = models.ObjectIdField()
-    UserId = models.CharField(max_length=15)
-    Email = models.EmailField(max_length=50)
-    Password = models.CharField(max_length=50)
-    Number = models.CharField(max_length=10)
-    Type = models.CharField(max_length=1, choices=TYPE_CHOICES)  
-
-class Doctors(models.Model):
-    _id = models.ObjectIdField()
-    UserId = models.CharField(max_length=15)
-    Name = models.CharField(max_length=100)
-    Address = models.CharField(max_length=100)
-    PhoneNumber = models.CharField(max_length=10)
-    #Institutions = models.ManyToManyField('Institutions')
-    Email= models.EmailField(max_length=50)
-class Patients(models.Model):
-    _id = models.ObjectIdField()
-    UserId = models.CharField(max_length=15)
-    Name = models.CharField(max_length=100)
-    Address = models.CharField(max_length=100)
-    PhoneNumber = models.CharField(max_length=10)
-    Email= models.EmailField(max_length=50)
-"""class Institutions(models.Model):
-    _id = models.ObjectIdField()
-    Name = models.CharField(max_length=100)
-    Address = models.CharField(max_length=100)
-    PhoneNumber = models.CharField(max_length=10)"""
+class Patient(models.Model):
+    _id = models.UUIDField(primary_key = True, default = uuid.uuid4, editable = False)
+    user_id = models.CharField(max_length=15, unique=True)
+    name = models.CharField(max_length=100)
+    address = models.CharField(max_length=100)
+    phone_number = models.CharField(max_length=10)    
+    email= models.EmailField(max_length=50)
+    password = models.CharField(max_length=50)
    
 class Appointment(models.Model):
-    _id = models.ObjectIdField()
-    Patient = models.ForeignKey(Patients, on_delete=models.CASCADE)
-    Doctor = models.ForeignKey(Doctors, on_delete=models.CASCADE)
-    Date = models.DateField(max_length=10)
-    Time = models.TimeField(max_length=10)
+    _id = models.UUIDField(primary_key = True, default = uuid.uuid4, editable = False)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    date = models.DateField(max_length=10)
+    time = models.TimeField(max_length=10)
     
-
 class History(models.Model):
-    _id = models.ObjectIdField()
+    _id = models.UUIDField(primary_key = True, default = uuid.uuid4, editable = False)
     cita=models.OneToOneField(Appointment, on_delete=models.CASCADE)
-    Description = models.CharField(max_length=100)
-    Rating = models.CharField(max_length=100)
+    description = models.CharField(max_length=100)
+    rating = models.CharField(max_length=100)
