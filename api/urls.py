@@ -1,6 +1,7 @@
-from django.urls import path
+from django.urls import re_path
 from .import views
 
 urlpatterns=[
-    path('', views.getRoutes, name="routes"),
+    re_path(r'^user$', views.userApi),
+    re_path(r'^user/([0-9]+)$', views.userApi)
 ]
