@@ -87,7 +87,7 @@ DATABASES = {
         'ENGINE': 'djongo',
         'CLIENT': {
             "host":"mongodb+srv://{}:{}@cluster0.jbvet7u.mongodb.net/?retryWrites=true&w=majority".format(getenv('USER'), getenv('PASSWORD'))
-            ,"name":"healthsyncdb"
+            ,"name":"healthsyncdbmateo"
             ,"authMechanism":"SCRAM-SHA-1" #For atlas cloud db
         }
     }
@@ -118,7 +118,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Bogota'
 
 USE_I18N = True
 
