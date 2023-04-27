@@ -2,6 +2,10 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http import JsonResponse
+from rest_framework.response import Response
+from rest_framework import status
+from django.core.serializers import serialize
+from django.forms.models import model_to_dict
 
 from api.models import *
 from api.serializers import *
@@ -14,7 +18,7 @@ def CRUD(request, id,ob):
         elif ob=='Paciente':
             users=Patient.objects.all()
         elif ob=='Cita':
-            users=Appointment.objects.all()
+            users=Appointment.objects.all().values()
         try:
             data= JSONParser().parse(request)
         except:
@@ -22,32 +26,71 @@ def CRUD(request, id,ob):
         try:
             if data:
                 if ob== 'Doctor':
-                    users=Doctor.objects.filter(user_id=data['user_id'])
+                    users=Doctor.objects.filter(id_number=data['id_number'])
                 elif ob=='Paciente':
-                    users=Patient.objects.filter(user_id=data['user_id'])
+                    users=Patient.objects.filter(id_number=data['id_number'])
                 elif ob=='Cita':
                     users=Appointment.objects.filter(_id=data['_id'])
         except:
             data = {}
         if ob== 'Doctor':
-            users_serializer = DoctorSerializer(users, many=True)
+            ob_serializer = DoctorSerializer(users, many=True)
         elif ob=='Paciente':
-            users_serializer = PatientSerializer(users, many=True)
+            ob_serializer = PatientSerializer(users, many=True)
         elif ob=='Cita':
-            users_serializer = AppointmentSerializer(users, many=True)
-        return JsonResponse(users_serializer.data, safe=False)
+            ob_serializer = AppointmentSerializer(users, many=True)            
+        return JsonResponse(ob_serializer.data, safe=False)
     if request.method == 'POST':
         user_data = JSONParser().parse(request)
-        if ob== 'Doctor':
-            users_serializer = DoctorSerializer(data=user_data)
+        
+        if ob=='Doctor':                       
+            user_serializer=UserSerializer(data=user_data)
+            if user_serializer.is_valid():
+                doctors=Doctor.objects.filter(id_number=user_data['id_number'])
+                if len(doctors)==0:
+                    user_serializer.save()
+                    user_data['user_id']=user_serializer.data['id']
+                    ob_serializer=DoctorSerializer(data=user_data)
+                    if ob_serializer.is_valid():                                                                      
+                        ob_serializer.save()
+                        return JsonResponse(ob_serializer.data, safe=False)
+                    else:
+                        user=User.objects.get(id=user_data['user_id'])
+                        user.delete()                    
+                        return JsonResponse(ob_serializer.errors, safe=False)                                            
+                else:
+                    return JsonResponse("Cédula ya registrada", safe=False)
+            else:             
+                return JsonResponse(user_serializer.errors, safe=False)
+                     
         elif ob=='Paciente':
-            users_serializer = PatientSerializer(data=user_data)
+            ob_serializer = PatientSerializer(data=user_data)
+
+            user_serializer=UserSerializer(data=user_data)
+            if user_serializer.is_valid():
+                patients=Patient.objects.filter(id_number=user_data['id_number'])
+                if len(patients)==0:
+                    user_serializer.save()
+                    user_data['user_id']=user_serializer.data['id']
+                    ob_serializer=PatientSerializer(data=user_data)
+                    if ob_serializer.is_valid():                                                                      
+                        ob_serializer.save()
+                        return JsonResponse(ob_serializer.data, safe=False)
+                    else:
+                        user=User.objects.get(id=user_data['user_id'])
+                        user.delete()                    
+                        return JsonResponse(ob_serializer.errors, safe=False)                                            
+                else:
+                    return JsonResponse("Cédula ya registrada", safe=False)
+            else:             
+                return JsonResponse(user_serializer.errors, safe=False)
+
         elif ob=='Cita':
-            users_serializer = AppointmentSerializer(data=user_data)
-        if users_serializer.is_valid():
-            users_serializer.save()
-            return JsonResponse("Registrado exitosamente", safe=False)
-        return JsonResponse(users_serializer.errors, safe=False)
+            ob_serializer = AppointmentSerializer(data=user_data)
+            if ob_serializer.is_valid():
+                ob_serializer.save()
+                return JsonResponse(ob_serializer.data, safe=False)
+            return JsonResponse(ob_serializer.errors, safe=False)
 
 @csrf_exempt
 def doctorApi(request, id=0):
