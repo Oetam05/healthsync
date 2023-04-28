@@ -18,7 +18,7 @@ def CRUD(request, id,ob):
         elif ob=='Paciente':
             users=Patient.objects.all()
         elif ob=='Cita':
-            users=Appointment.objects.all().values()
+            users=Appointment.objects.all()
         try:
             data= JSONParser().parse(request)
         except:
@@ -35,10 +35,16 @@ def CRUD(request, id,ob):
             data = {}
         if ob== 'Doctor':
             ob_serializer = DoctorSerializer(users, many=True)
+            print(users)
+            print(ob_serializer)
         elif ob=='Paciente':
             ob_serializer = PatientSerializer(users, many=True)
-        elif ob=='Cita':
-            ob_serializer = AppointmentSerializer(users, many=True)            
+        elif ob=='Cita':            
+            ob_serializer = AppointmentSerializer(users, many=True)
+            print(ob_serializer)
+            print(type(ob_serializer))
+            # ob_serializer = serialize("json", users)
+            # return JsonResponse(ob_serializer, safe=False)
         return JsonResponse(ob_serializer.data, safe=False)
     if request.method == 'POST':
         user_data = JSONParser().parse(request)
@@ -49,7 +55,7 @@ def CRUD(request, id,ob):
                 doctors=Doctor.objects.filter(id_number=user_data['id_number'])
                 if len(doctors)==0:
                     user_serializer.save()
-                    user_data['user_id']=user_serializer.data['id']
+                    user_data['user']=user_serializer.data['id']
                     ob_serializer=DoctorSerializer(data=user_data)
                     if ob_serializer.is_valid():                                                                      
                         ob_serializer.save()
@@ -71,13 +77,13 @@ def CRUD(request, id,ob):
                 patients=Patient.objects.filter(id_number=user_data['id_number'])
                 if len(patients)==0:
                     user_serializer.save()
-                    user_data['user_id']=user_serializer.data['id']
+                    user_data['user']=user_serializer.data['id']
                     ob_serializer=PatientSerializer(data=user_data)
                     if ob_serializer.is_valid():                                                                      
                         ob_serializer.save()
                         return JsonResponse(ob_serializer.data, safe=False)
                     else:
-                        user=User.objects.get(id=user_data['user_id'])
+                        user=User.objects.get(id=user_data['user'])
                         user.delete()                    
                         return JsonResponse(ob_serializer.errors, safe=False)                                            
                 else:
