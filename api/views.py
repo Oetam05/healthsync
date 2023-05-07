@@ -1,11 +1,7 @@
-from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http import JsonResponse
-from rest_framework.response import Response
-from rest_framework import status
-from django.core.serializers import serialize
-from django.forms.models import model_to_dict
+from rest_framework.authentication import TokenAuthentication
 
 from api.models import *
 from api.serializers import *
@@ -13,39 +9,39 @@ from api.serializers import *
 
 def CRUD(request, id,ob):
     if request.method == 'GET':
-        if ob== 'Doctor':
-            users=Doctor.objects.all()
-        elif ob=='Paciente':
-            users=Patient.objects.all()
-        elif ob=='Cita':
-            users=Appointment.objects.all()
-        try:
-            data= JSONParser().parse(request)
-        except:
-            data = {}
-        try:
-            if data:
-                if ob== 'Doctor':
-                    users=Doctor.objects.filter(id_number=data['id_number'])
-                elif ob=='Paciente':
-                    users=Patient.objects.filter(id_number=data['id_number'])
-                elif ob=='Cita':
-                    users=Appointment.objects.filter(_id=data['_id'])
-        except:
-            data = {}
-        if ob== 'Doctor':
-            ob_serializer = DoctorSerializer(users, many=True)
-            print(users)
-            print(ob_serializer)
-        elif ob=='Paciente':
-            ob_serializer = PatientSerializer(users, many=True)
-        elif ob=='Cita':            
-            ob_serializer = AppointmentSerializer(users, many=True)
-            print(ob_serializer)
-            print(type(ob_serializer))
-            # ob_serializer = serialize("json", users)
-            # return JsonResponse(ob_serializer, safe=False)
-        return JsonResponse(ob_serializer.data, safe=False)
+        user_auth_tuple = TokenAuthentication().authenticate(request)
+        if user_auth_tuple is None:
+            return JsonResponse("Usuario no autenticado",status=401, safe=False)
+        else:
+            (usuario, token) = user_auth_tuple # here come your user object
+            if ob== 'Doctor':
+                users=Doctor.objects.all()
+            elif ob=='Paciente':
+                users=Patient.objects.all()
+            elif ob=='Cita':
+                users=Appointment.objects.all()
+            try:
+                data= JSONParser().parse(request)
+            except:
+                data = {}
+            try:
+                if data:
+                    if ob== 'Doctor':
+                        users=Doctor.objects.filter(id_number=data['id_number'])
+                    elif ob=='Paciente':
+                        users=Patient.objects.filter(id_number=data['id_number'])
+                    elif ob=='Cita':
+                        users=Appointment.objects.filter(_id=data['_id'])
+            except:
+                data = {}
+            if ob== 'Doctor':
+                ob_serializer = DoctorSerializer(users, many=True)
+            elif ob=='Paciente':
+                ob_serializer = PatientSerializer(users, many=True)
+            elif ob=='Cita':            
+                ob_serializer = AppointmentSerializer(users, many=True)
+            return JsonResponse(ob_serializer.data, safe=False)
+    
     if request.method == 'POST':
         user_data = JSONParser().parse(request)
         
