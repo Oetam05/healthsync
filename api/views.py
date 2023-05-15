@@ -2,7 +2,8 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http import JsonResponse
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.authtoken.models import Token
+from django.contrib.auth.hashers import check_password
 from api.models import *
 from api.serializers import *
 # Create your views here.
@@ -118,6 +119,29 @@ def medicalApi(request):
             medical = History.objects.filter(_id=data['_id'])
         History_serializer = historySerializer(medical, many=True)
         return JsonResponse(History_serializer.data, safe=False)
+
+@csrf_exempt
+def login(request):
+    if request.method=="POST":
+        user_data = JSONParser().parse(request)
+        username=user_data['username']
+        password=user_data['password']        
+        try:
+            user=User.objects.get(username=username)
+        except User.DoesNotExist:
+            return JsonResponse("Usuario invalido", status=404, safe=False)
+        pwd_valid=check_password(password, user.password)
+        if not pwd_valid:
+            return JsonResponse("Contraseña incorrecta", status=400, safe=False)
+        token, _=Token.objects.get_or_create(user=user)
+        if(len(Doctor.objects.filter(user=user))==0):
+            op="paciente"
+        else:
+            op="doctor"
+        return JsonResponse({"token":token.key, "op":op}, status=200, safe=False)
+    else:
+        return JsonResponse("Solo se permite el metodo post", status=400, safe=False)
+
 
 @csrf_exempt
 def logout(request):
