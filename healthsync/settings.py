@@ -88,7 +88,7 @@ DATABASES = {
         'ENGINE': 'djongo',
         'CLIENT': {
             "host":"mongodb+srv://{}:{}@cluster0.jbvet7u.mongodb.net/?retryWrites=true&w=majority".format(getenv('USER'), getenv('PASSWORD'))
-            ,"name":"healthsyncdbmateo"
+            ,"name":"healthsyncdb"
             ,"authMechanism":"SCRAM-SHA-1" #For atlas cloud db
         }
     }

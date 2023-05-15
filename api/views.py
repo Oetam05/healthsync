@@ -9,16 +9,12 @@ from api.serializers import *
 
 
 def CRUD(request, id, ob):
-    if request.method == 'POST' and (ob == 'Doctor' or ob == 'Paciente'):
-        print("entra")
-    else:
+    if not (request.method == 'POST' and (ob == 'Doctor' or ob == 'Paciente')):                
         try:
             user_auth_tuple = TokenAuthentication().authenticate(request)
-        except:
-            print("arriba")
+        except:            
             return JsonResponse("Usuario no autenticado",status=401, safe=False)
-        if user_auth_tuple is None:
-            print("abajo")
+        if user_auth_tuple is None:            
             return JsonResponse("Usuario no autenticado",status=401, safe=False)
     
     if request.method == 'GET':                
@@ -68,11 +64,11 @@ def CRUD(request, id, ob):
                     else:
                         user=User.objects.get(id=user_data['user_id'])
                         user.delete()                    
-                        return JsonResponse(ob_serializer.errors, safe=False)                                            
+                        return JsonResponse(ob_serializer.errors, status=400, safe=False)                                            
                 else:
-                    return JsonResponse("Cédula ya registrada", safe=False)
+                    return JsonResponse("Cédula ya registrada", status=400, safe=False)
             else:             
-                return JsonResponse(user_serializer.errors, safe=False)
+                return JsonResponse(user_serializer.errors, status=400, safe=False)
                      
         elif ob=='Paciente':
             ob_serializer = PatientSerializer(data=user_data)
@@ -90,18 +86,18 @@ def CRUD(request, id, ob):
                     else:
                         user=User.objects.get(id=user_data['user'])
                         user.delete()                    
-                        return JsonResponse(ob_serializer.errors, safe=False)                                            
+                        return JsonResponse(ob_serializer.errors, status=400, safe=False)                                            
                 else:
-                    return JsonResponse("Cédula ya registrada", safe=False)
+                    return JsonResponse("Cédula ya registrada", status=400, safe=False)
             else:             
-                return JsonResponse(user_serializer.errors, safe=False)
+                return JsonResponse(user_serializer.errors, status=400, safe=False)
 
         elif ob=='Cita':
             ob_serializer = AppointmentSerializer(data=user_data)
             if ob_serializer.is_valid():
                 ob_serializer.save()
                 return JsonResponse(ob_serializer.data, safe=False)
-            return JsonResponse(ob_serializer.errors, safe=False)
+            return JsonResponse(ob_serializer.errors, status=400, safe=False)
 
 @csrf_exempt
 def doctorApi(request, id=0):

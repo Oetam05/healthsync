@@ -1,7 +1,8 @@
 from djongo import models
 import uuid 
 from django.contrib.auth.models import User
-
+default_sche={'lunes':'8:00-18:00','martes':'8:00-18:00','miercoles':'8:00-18:00','jueves':'8:00-18:00',
+          'viernes':'8:00-18:00','sabado':'10:00-16:00','domingo':'10:00-14:00'}
 class Doctor(models.Model):
     _id = models.UUIDField(primary_key = True, default = uuid.uuid4, editable = False)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -9,7 +10,9 @@ class Doctor(models.Model):
     name = models.CharField(max_length=100)
     address = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=10)    
-    email= models.EmailField(max_length=50)    
+    email= models.EmailField(max_length=50)
+    specialization = models.CharField(max_length=100)
+    schedule = models.JSONField(default=default_sche)
 
 class Patient(models.Model):
     _id = models.UUIDField(primary_key = True, default = uuid.uuid4, editable = False)
