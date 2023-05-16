@@ -1,4 +1,4 @@
-from django.urls import re_path
+from django.urls import re_path, path
 from .import views
 
 urlpatterns=[
@@ -7,4 +7,5 @@ urlpatterns=[
     re_path(r'^cita$', views.AppointmentApi),
     re_path(r'^login$', views.login),
     re_path(r'^logout$', views.logout),
+    path('cita/<uuid:id>/', views.cita),
 ]
