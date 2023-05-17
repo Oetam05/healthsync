@@ -86,11 +86,13 @@ WSGI_APPLICATION = 'healthsync.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
         'CLIENT': {
-            "host":"mongodb+srv://{}:{}@cluster0.jbvet7u.mongodb.net/?retryWrites=true&w=majority".format(os.environ.get('USER'), os.environ.get('PASSWORD'))
+            "host":"mongodb+srv://mateoaristizabal:CcjQnmefjYFD2IxM@cluster0.jbvet7u.mongodb.net/?retryWrites=true&w=majority"
             ,"name":"healthsyncdb"
             ,"authMechanism":"SCRAM-SHA-1" #For atlas cloud db
         }
