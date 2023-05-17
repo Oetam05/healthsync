@@ -11,9 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-from os import getenv
-from dotenv import load_dotenv
-load_dotenv()
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,12 +21,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-54)0@zvh1t149m8!7k-*a(+@^56n1vwfl#6^(+rbyb*gfd(_8b'
+SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = 'RENDER' not in os.environ
 
 ALLOWED_HOSTS = []
+
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 
 # Application definition
@@ -87,7 +90,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'djongo',
         'CLIENT': {
-            "host":"mongodb+srv://{}:{}@cluster0.jbvet7u.mongodb.net/?retryWrites=true&w=majority".format(getenv('USER'), getenv('PASSWORD'))
+            "host":"mongodb+srv://{}:{}@cluster0.jbvet7u.mongodb.net/?retryWrites=true&w=majority".format(os.environ.get('USER'), os.environ.get('PASSWORD'))
             ,"name":"healthsyncdb"
             ,"authMechanism":"SCRAM-SHA-1" #For atlas cloud db
         }
