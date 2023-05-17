@@ -141,6 +141,54 @@ def medicalApi(request):
             medical = History.objects.filter(_id=data['_id'])
         History_serializer = historySerializer(medical, many=True)
         return JsonResponse(History_serializer.data, safe=False)
+@csrf_exempt
+def paciente(request,id):
+    if request.method=='GET':
+        try:
+            user_auth_tuple = TokenAuthentication().authenticate(request)
+        except:
+            return JsonResponse("Usuario no autenticado", status=401,safe=False)
+        if user_auth_tuple is None:
+            return JsonResponse("Usuario no autenticado", status=401, safe=False)
+        if (len(Patient.objects.filter(_id=id))!=0):
+            pat=Patient.objects.get(_id=id)
+            resp={
+                "name":pat.name,
+                "phone_number":pat.phone_number,
+                "email":pat.email
+            }
+        return JsonResponse(resp,safe=False,status=200)
+@csrf_exempt
+def doctor(request,id):
+     if request.method=='GET':
+        try:
+            user_auth_tuple = TokenAuthentication().authenticate(request)
+        except:
+            return JsonResponse("Usuario no autenticado", status=401,safe=False)
+        if user_auth_tuple is None:
+            return JsonResponse("Usuario no autenticado", status=401, safe=False)
+        if (len(Doctor.objects.filter(_id=id))!=0):
+            pat=Doctor.objects.get(_id=id)
+            resp={
+                "name":pat.name,
+                "phone_number":pat.phone_number,
+                "specialization":pat.specialization
+            }
+        return JsonResponse(resp,safe=False,status=200)
+@csrf_exempt
+def buscar_citas(request,fecha,hora,doctor_id):
+    if request.method =='GET':
+        try: 
+            user_auth_tuple=TokenAuthentication().authenticate(request)
+        except:
+            return JsonResponse("Usuario no autenticado",status=401,safe=False)
+        if user_auth_tuple is None:
+            return JsonResponse("Usuario no autenticado",status=401,safe=False)
+        if (Appointment.objects.filter(date=fecha,time=hora,doctor=doctor_id)):
+            return JsonResponse(False,status=200,safe=False)
+        else:
+            return JsonResponse(True,status=200,safe=False)
+
 
 
 @csrf_exempt
